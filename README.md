@@ -24,8 +24,8 @@ This repository contains the Docker Compose configuration for setting up a Forge
 - Image: `gitea/act_runner:latest`
 - Volumes: Docker socket
 - Extra hosts:
-  - <git-domain>:<IP>
-  - <registry-domain>:<IP>
+  - git-domain:IP
+  - registry-domain>:IP
 
 ## Networks
 
