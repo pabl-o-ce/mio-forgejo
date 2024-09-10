@@ -1,0 +1,66 @@
+services:
+  forgejo:
+    image: codeberg.org/forgejo/forgejo:8.0.3-rootless
+    container_name: forgejo
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - forgejo
+      - middle-earth
+    volumes:
+      - forgejo:/data
+      - forgejo-config:/etc/gitea
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "2222:2222"
+     depends_on:
+       - forgejo-db
+
+   forgejo-db:
+     image: postgres:14
+     restart: always
+     env_file:
+      - .env
+     networks:
+       - forgejo
+     volumes:
+       - forgejo-postgres:/var/lib/postgresql/data
+  
+  forgejo-runner:
+    image: gitea/act_runner:latest
+    restart: always
+    depends_on:
+      - forgejo
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - .env
+    networks:
+      - forgejo
+    extra_hosts:
+      - <git-domain>:<IP>
+      - <registry-domain>:<IP>
+
+networks:
+  forgejo:
+    external: false
+  middle-earth:
+    name: middle-earth
+    external: true
+
+volumes:
+  forgejo-postgres:
+  forgejo-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/vol1/forgejo/data
+  forgejo-config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/vol1/forgejo/config
